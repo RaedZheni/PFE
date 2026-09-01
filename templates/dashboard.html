@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon blue">
+            <i class="fa-solid fa-users"></i>
+        </div>
+        <div class="stat-info">
+            <span class="stat-value">{{ total_employees }}</span>
+            <span class="stat-label">Employees</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple">
+            <i class="fa-solid fa-sitemap"></i>
+        </div>
+        <div class="stat-info">
+            <span class="stat-value">{{ total_departments }}</span>
+            <span class="stat-label">Departments</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <i class="fa-solid fa-file-contract"></i>
+        </div>
+        <div class="stat-info">
+            <span class="stat-value">{{ active_contracts }}</span>
+            <span class="stat-label">Active Contracts</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange">
+            <i class="fa-solid fa-diagram-project"></i>
+        </div>
+        <div class="stat-info">
+            <span class="stat-value">{{ total_projects }}</span>
+            <span class="stat-label">Projects</span>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-bottom">
+    <div class="quick-links">
+        <h3>Quick Actions</h3>
+        <div class="quick-grid">
+            <a href="{{ url_for('employees.create') }}" class="quick-card">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Add Employee</span>
+            </a>
+            <a href="{{ url_for('departments.create') }}" class="quick-card">
+                <i class="fa-solid fa-plus"></i>
+                <span>Add Department</span>
+            </a>
+            <a href="{{ url_for('contracts.create') }}" class="quick-card">
+                <i class="fa-solid fa-file-circle-plus"></i>
+                <span>New Contract</span>
+            </a>
+            <a href="{{ url_for('projects.create') }}" class="quick-card">
+                <i class="fa-solid fa-folder-plus"></i>
+                <span>New Project</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

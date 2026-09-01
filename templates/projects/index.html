@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block page_title %}Projects{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Projects</h2>
+    <a href="{{ url_for('projects.create') }}" class="btn-primary">
+        <i class="fa-solid fa-folder-plus"></i> New Project
+    </a>
+</div>
+
+<div class="projects-grid">
+    {% for project in projects %}
+    <div class="project-card">
+        <div class="project-card-header">
+            <div class="project-icon">
+                <i class="fa-solid fa-diagram-project"></i>
+            </div>
+            <div class="project-status">
+                {% if project.status == 'active' %}
+                <span class="badge green">Active</span>
+                {% elif project.status == 'completed' %}
+                <span class="badge blue">Completed</span>
+                {% else %}
+                <span class="badge orange">On Hold</span>
+                {% endif %}
+            </div>
+        </div>
+        <h3>{{ project.name }}</h3>
+        <p>{{ project.description or 'No description.' }}</p>
+        <div class="project-meta">
+            <span><i class="fa-solid fa-list-check"></i> {{ project.tasks|length }} tasks</span>
+        </div>
+        <div class="project-actions">
+            <a href="{{ url_for('projects.kanban', id=project.id) }}" class="btn-primary small">
+                <i class="fa-solid fa-table-columns"></i> Kanban
+            </a>
+            <a href="{{ url_for('projects.delete', id=project.id) }}" class="btn-icon delete"
+               onclick="return confirm('Delete this project?')">
+                <i class="fa-solid fa-trash"></i>
+            </a>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fa-solid fa-folder-open"></i>
+        <p>No projects yet. <a href="{{ url_for('projects.create') }}">Create one</a></p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

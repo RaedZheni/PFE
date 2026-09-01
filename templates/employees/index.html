@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block page_title %}Employees{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Employees</h2>
+    <a href="{{ url_for('employees.create') }}" class="btn-primary">
+        <i class="fa-solid fa-user-plus"></i> Add Employee
+    </a>
+</div>
+
+<div class="table-card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Role</th>
+                <th>Department</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for emp in employees %}
+            <tr>
+                <td>{{ emp.id }}</td>
+                <td>
+                    <div class="emp-name">
+                        <div class="avatar">{{ emp.first_name[0] }}{{ emp.last_name[0] }}</div>
+                        {{ emp.first_name }} {{ emp.last_name }}
+                    </div>
+                </td>
+                <td>{{ emp.email }}</td>
+                <td>{{ emp.phone or '-' }}</td>
+                <td><span class="badge blue">{{ emp.role or '-' }}</span></td>
+                <td>{{ emp.department.name if emp.department else '-' }}</td>
+                <td>
+                    <div class="actions">
+                        <a href="{{ url_for('employees.edit', id=emp.id) }}" class="btn-icon edit">
+                            <i class="fa-solid fa-pen"></i>
+                        </a>
+                        <a href="{{ url_for('employees.delete', id=emp.id) }}" class="btn-icon delete"
+                           onclick="return confirm('Delete this employee?')">
+                            <i class="fa-solid fa-trash"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" class="empty">No employees found. <a href="{{ url_for('employees.create') }}">Add one</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

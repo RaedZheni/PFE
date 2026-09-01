@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block page_title %}{{ project.name }} — Kanban{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2><i class="fa-solid fa-diagram-project"></i> {{ project.name }}</h2>
+    <div class="header-actions">
+        <button class="btn-primary" onclick="openTaskModal()">
+            <i class="fa-solid fa-plus"></i> Add Task
+        </button>
+        <a href="{{ url_for('projects.index') }}" class="btn-secondary">
+            <i class="fa-solid fa-arrow-left"></i> Back
+        </a>
+    </div>
+</div>
+
+<div class="kanban-board">
+
+    <!-- TO DO -->
+    <div class="kanban-column" id="col-todo" data-status="todo">
+        <div class="kanban-column-header todo">
+            <span><i class="fa-solid fa-circle-dot"></i> To Do</span>
+            <span class="task-count">{{ tasks.todo|length }}</span>
+        </div>
+        <div class="kanban-cards" id="todo">
+            {% for task in tasks.todo %}
+            <div class="kanban-card" data-id="{{ task.id }}">
+                <div class="card-title">{{ task.title }}</div>
+                {% if task.description %}
+                <div class="card-desc">{{ task.description }}</div>
+                {% endif %}
+                <div class="card-footer">
+                    {% if task.employee %}
+                    <div class="card-avatar" title="{{ task.employee.first_name }} {{ task.employee.last_name }}">
+                        {{ task.employee.first_name[0] }}{{ task.employee.last_name[0] }}
+                    </div>
+                    {% endif %}
+                    {% if task.due_date %}
+                    <span class="card-date"><i class="fa-solid fa-calendar"></i> {{ task.due_date.strftime('%d %b') }}</span>
+                    {% endif %}
+                    <button class="card-delete" onclick="deleteTask({{ task.id }}, this)">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- IN PROGRESS -->
+    <div class="kanban-column" id="col-inprogress" data-status="inprogress">
+        <div class="kanban-column-header inprogress">
+            <span><i class="fa-solid fa-spinner"></i> In Progress</span>
+            <span class="task-count">{{ tasks.inprogress|length }}</span>
+        </div>
+        <div class="kanban-cards" id="inprogress">
+            {% for task in tasks.inprogress %}
+            <div class="kanban-card" data-id="{{ task.id }}">
+                <div class="card-title">{{ task.title }}</div>
+                {% if task.description %}
+                <div class="card-desc">{{ task.description }}</div>
+                {% endif %}
+                <div class="card-footer">
+                    {% if task.employee %}
+                    <div class="card-avatar" title="{{ task.employee.first_name }} {{ task.employee.last_name }}">
+                        {{ task.employee.first_name[0] }}{{ task.employee.last_name[0] }}
+                    </div>
+                    {% endif %}
+                    {% if task.due_date %}
+                    <span class="card-date"><i class="fa-solid fa-calendar"></i> {{ task.due_date.strftime('%d %b') }}</span>
+                    {% endif %}
+                    <button class="card-delete" onclick="deleteTask({{ task.id }}, this)">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- DONE -->
+    <div class="kanban-column" id="col-done" data-status="done">
+        <div class="kanban-column-header done">
+            <span><i class="fa-solid fa-circle-check"></i> Done</span>
+            <span class="task-count">{{ tasks.done|length }}</span>
+        </div>
+        <div class="kanban-cards" id="done">
+            {% for task in tasks.done %}
+            <div class="kanban-card" data-id="{{ task.id }}">
+                <div class="card-title">{{ task.title }}</div>
+                {% if task.description %}
+                <div class="card-desc">{{ task.description }}</div>
+                {% endif %}
+                <div class="card-footer">
+                    {% if task.employee %}
+                    <div class="card-avatar" title="{{ task.employee.first_name }} {{ task.employee.last_name }}">
+                        {{ task.employee.first_name[0] }}{{ task.employee.last_name[0] }}
+                    </div>
+                    {% endif %}
+                    {% if task.due_date %}
+                    <span class="card-date"><i class="fa-solid fa-calendar"></i> {{ task.due_date.strftime('%d %b') }}</span>
+                    {% endif %}
+                    <button class="card-delete" onclick="deleteTask({{ task.id }}, this)">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+<!-- ADD TASK MODAL -->
+<div class="modal-overlay" id="task-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Add Task</h3>
+            <button onclick="closeTaskModal()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" id="task-title" placeholder="Task title" required>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="task-desc" placeholder="Optional description" rows="2"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Assign To</label>
+                    <select id="task-employee">
+                        <option value="">-- Unassigned --</option>
+                        {% for emp in employees %}
+                        <option value="{{ emp.id }}">{{ emp.first_name }} {{ emp.last_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="date" id="task-due">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Column</label>
+                <select id="task-status">
+                    <option value="todo">To Do</option>
+                    <option value="inprogress">In Progress</option>
+                    <option value="done">Done</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-primary" onclick="submitTask()">Add Task</button>
+            <button class="btn-secondary" onclick="closeTaskModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+<script>
+    const PROJECT_ID = {{ project.id }};
+</script>
+<script src="{{ url_for('static', filename='js/kanban.js') }}"></script>
+{% endblock %}

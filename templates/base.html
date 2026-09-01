@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+{% if current_user.is_authenticated %}
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <i class="fa-solid fa-building-user"></i>
+            <span>HR Manager</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('dashboard.index') }}" class="nav-item {% if request.endpoint == 'dashboard.index' %}active{% endif %}">
+                <i class="fa-solid fa-gauge"></i> Dashboard
+            </a>
+            <a href="{{ url_for('employees.index') }}" class="nav-item {% if 'employees' in request.endpoint %}active{% endif %}">
+                <i class="fa-solid fa-users"></i> Employees
+            </a>
+            <a href="{{ url_for('departments.index') }}" class="nav-item {% if 'departments' in request.endpoint %}active{% endif %}">
+                <i class="fa-solid fa-sitemap"></i> Departments
+            </a>
+            <a href="{{ url_for('contracts.index') }}" class="nav-item {% if 'contracts' in request.endpoint %}active{% endif %}">
+                <i class="fa-solid fa-file-contract"></i> Contracts
+            </a>
+            <a href="{{ url_for('projects.index') }}" class="nav-item {% if 'projects' in request.endpoint %}active{% endif %}">
+                <i class="fa-solid fa-diagram-project"></i> Projects
+            </a>
+        </nav>
+        <div class="sidebar-bottom">
+            <a href="{{ url_for('auth.logout') }}" class="nav-item logout">
+                <i class="fa-solid fa-right-from-bracket"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+        <div class="topbar">
+            <div class="topbar-title">{% block page_title %}{% endblock %}</div>
+            <div class="topbar-user">
+                <i class="fa-solid fa-circle-user"></i>
+                {{ current_user.username }}
+            </div>
+        </div>
+
+        <div class="content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+</div>
+
+<!-- CHATBOT WIDGET -->
+<div class="chatbot-bubble" onclick="toggleChat()">
+    <i class="fa-solid fa-robot"></i>
+</div>
+
+<div class="chatbot-box" id="chatbot-box">
+    <div class="chatbot-header">
+        <span><i class="fa-solid fa-robot"></i> HR Assistant</span>
+        <button onclick="toggleChat()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="chatbot-messages" id="chatbot-messages">
+        <div class="bot-msg">Hi! I'm your HR Assistant. Ask me anything about employees, contracts, or projects.</div>
+    </div>
+    <div class="chatbot-input">
+        <input type="text" id="chatbot-input" placeholder="Ask something..." onkeydown="if(event.key==='Enter') sendMessage()">
+        <button onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+</div>
+
+{% endif %}
+<script>
+    const ANTHROPIC_API_KEY = "{{ config['ANTHROPIC_API_KEY'] }}";
+</script>
+<script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
+{% block scripts %}{% endblock %}
+<script>
+document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        let valid = true;
+        form.querySelectorAll('input[required], select[required], textarea[required]').forEach(field => {
+            if (!field.value.trim()) {
+                field.style.borderColor = '#ef4444';
+                valid = false;
+            } else {
+                field.style.borderColor = '';
+            }
+        });
+        if (!valid) {
+            e.preventDefault();
+            if (!form.querySelector('.form-error')) {
+                const err = document.createElement('div');
+                err.className = 'alert alert-danger form-error';
+                err.textContent = 'Please fill in all required fields.';
+                form.prepend(err);
+            }
+        }
+    });
+});
+</script>
+</body>
+</html>
